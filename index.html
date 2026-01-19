@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will You Be My Valentine? ❤️</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      overflow: hidden;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      animation: fadeIn 1.2s ease;
+      position: relative;
+    }
+
+    h1 { font-size: 2rem; margin-bottom: 1rem; }
+    .heart { font-size: 3rem; animation: pulse 1.5s infinite; margin-bottom: 0.5rem; }
+
+    .buttons { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
+
+    button {
+      background: #ff4d6d;
+      border: none;
+      border-radius: 999px;
+      padding: 0.8rem 1.6rem;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    button:hover { transform: scale(1.05); background: #ff335a; }
+
+    .mute-btn { position: fixed; top: 16px; right: 16px; background: rgba(0,0,0,0.35); padding: 0.6rem 1rem; font-size: 0.9rem; z-index: 10; }
+
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+    .floating-heart {
+      position: fixed;
+      bottom: -40px;
+      font-size: 1.5rem;
+      opacity: 0.8;
+      animation: floatUp linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(1); opacity:0.9; }
+      to { transform: translateY(-110vh) scale(1.6); opacity:0; }
+    }
+
+    .typewriter {
+      display: inline-block;
+      border-right: 2px solid rgba(255,255,255,0.75);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .letter-slide {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; justify-content: center; align-items: center;
+      background: rgba(255,255,255,0.05);
+      z-index: 5;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+
+    .letter-slide.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .letter-content {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 20px;
+      max-width: 500px;
+      color: #333;
+      text-align: center;
+    }
+
+    .letter-content img {
+      width: 100%;
+      border-radius: 16px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="song" loop preload="auto">
+    <source src="https://res.cloudinary.com/dncywqfpb/video/upload/v1738399057/music_qrhjvy.mp3" type="audio/mpeg" />
+  </audio>
+
+  <button class="mute-btn" onclick="toggleMusic()">🎵 Play Music</button>
+
+  <div class="card" id="interactiveCard">
+    <h1>Dania Maria Santos Guevara <span class="heart">💓</span></h1>
+    <h1 class="typewriter" id="typewriterMsg"></h1>
+
+    <div class="buttons" id="buttonsContainer">
+      <button id="yesBtn">Yes 💖</button>
+      <button id="noBtn">No 😢</button>
+    </div>
+  </div>
+
+  <div class="letter-slide" id="letterSlide">
+    <div class="letter-content">
+      <h2>Happy Valentine's Day ❤️</h2>
+      <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2Y5dWg0a2ZsbGVnMTR5ODZ0dTJmM2dzMWt3bHV6ODRrZ3pxMWN2ZSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/MDJ9IbxxvDUQM/giphy.gif" alt="cute anime gif" />
+      <p>
+        You are such an amazing and sweet person, and I feel so lucky to have you in my life.<br/>
+        Every day with you brings joy and warmth, and I treasure every moment we share together. 💖<br/><br/>
+        I feel blessed that our lives have intertwined, and I want to spend our time together growing, learning, and cherishing each moment.<br/>
+        Being with you makes me happier, and I can't wait to continue this beautiful journey side by side.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const song = document.getElementById('song');
+    const muteBtn = document.querySelector('.mute-btn');
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const interactiveCard = document.getElementById('interactiveCard');
+    const typewriterMsg = document.getElementById('typewriterMsg');
+    const buttonsContainer = document.getElementById('buttonsContainer');
+    const letterSlide = document.getElementById('letterSlide');
+
+    const musicConfig = { enabled:true, autoplay:true, volume:0.5, startText:'🎵 Play Music', stopText:'🔇 Stop Music' };
+    song.volume = musicConfig.volume;
+
+    const message = "Will you be my Valentine?";
+    let i = 0;
+    function typeWriter(){
+      if(i<message.length){
+        typewriterMsg.innerHTML += message.charAt(i);
+        i++;
+        setTimeout(typeWriter, 120);
+      } else {
+        buttonsContainer.style.display = 'flex';
+      }
+    }
+
+    window.onload = typeWriter;
+
+    function toggleMusic(){
+      if(!musicConfig.enabled) return;
+      if(song.paused){ song.play(); muteBtn.innerText=musicConfig.stopText; }
+      else{ song.pause(); muteBtn.innerText=musicConfig.startText; }
+    }
+
+    yesBtn.addEventListener('click', () => {
+      // Hide interactive card and show letter page
+      interactiveCard.style.display = 'none';
+      letterSlide.classList.add('show');
+      if(song.paused) { song.play(); muteBtn.innerText = musicConfig.stopText; }
+    });
+
+    function moveNoButton(){
+      const padding=80;
+      const maxX=window.innerWidth-noBtn.offsetWidth-padding;
+      const maxY=window.innerHeight-noBtn.offsetHeight-padding;
+      const x=Math.random()*maxX+padding/2;
+      const y=Math.random()*maxY+padding/2;
+      noBtn.style.position='fixed';
+      noBtn.style.left=`${x}px`;
+      noBtn.style.top=`${y}px`;
+    }
+
+    function attachNoButtonBehavior(){
+      noBtn.addEventListener('mouseenter', moveNoButton);
+      noBtn.addEventListener('mousedown', e => { e.preventDefault(); moveNoButton(); });
+      noBtn.addEventListener('click', moveNoButton);
+      document.addEventListener('mousemove', e => {
+        const rect=noBtn.getBoundingClientRect();
+        const distance=Math.hypot(e.clientX-(rect.left+rect.width/2), e.clientY-(rect.top+rect.height/2));
+        if(distance<120) moveNoButton();
+      });
+    }
+    attachNoButtonBehavior();
+
+    function startFloatingBackground(){
+      setInterval(()=>{
+        const elem=document.createElement('div');
+        elem.className='floating-heart';
+        const colors=['#FFB6C1','#FFC0CB','#FF69B4','#DB7093','#FFA07A','#FF1493'];
+        const emojis=['🌸','💖','💓'];
+        elem.innerText=emojis[Math.floor(Math.random()*emojis.length)];
+        elem.style.color=colors[Math.floor(Math.random()*colors.length)];
+        elem.style.left=Math.random()*100+'vw';
+        elem.style.fontSize=(20+Math.random()*30)+'px';
+        elem.style.animationDuration=(4+Math.random()*4)+'s';
+        document.body.appendChild(elem);
+        setTimeout(()=>elem.remove(),8000);
+      },200);
+    }
+
+    startFloatingBackground();
+  </script>
+</body>
+</html>
